@@ -14,6 +14,7 @@ maintainer during actual runs.
 | **Watch and understand what's happening** | `paper-pipeline-tui /path/to/pdfs` |
 | Cold-start a new machine | `./scripts/setup.sh` |
 | Check status from a script/tmux, not interactively | `./scripts/monitor.sh /path/to/pdfs --watch` |
+| **What's running on this machine, from where, by whom** | `python3 scripts/instances.py` |
 | Manage the optional evidence-graph viewer | `./scripts/graph_viz.sh start/stop/status` |
 
 `paper-pipeline-tui` is read-only — it never starts, stops, or reprocesses
@@ -141,6 +142,24 @@ batch progress, a "possibly stuck" heuristic) as a single auto-refreshing
 snapshot rather than a navigable dashboard. If the optional evidence graph
 viewer (§9) is running, its status shows here too — otherwise that line is
 omitted entirely.
+
+**Whole-machine picture** — if you're not sure whether a `paper-pipeline`
+process is already running somewhere, from a previous session or a
+different checkout:
+
+```bash
+python3 scripts/instances.py
+```
+
+Discovers every `paper-pipeline` process on the machine by exact executable
+match (never confused with `paper-pipeline-tui` or the optional graph
+viewer), and reports per instance: uptime, root directory, PDF source and
+database paths, live database row counts, CPU/memory (including any
+in-flight `dot`/`tesseract` child process), the Ollama model it's actually
+using, and the exact command to shut it down gracefully
+(`kill -TERM <pid>`). Also reports the optional Neo4j/cosmos.gl viewer's
+status if either is running. Stdlib only, no venv required, Linux-only
+(reads `/proc` directly).
 
 **Manual alternatives**, if you'd rather not use either tool:
 

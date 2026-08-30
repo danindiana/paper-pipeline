@@ -62,7 +62,9 @@ interactive terminal required, useful for logging or scripting.
 
 Everything else keeps its place: `paper-pipeline` to actually process
 papers, `scripts/setup.sh` for cold-start, `scripts/monitor.sh` for a
-scriptable/tmux-friendly status line, `scripts/graph_viz.sh` for the
+scriptable/tmux-friendly status line, `scripts/instances.py` to see every
+`paper-pipeline` process running on the machine right now (from where,
+against what database, how to shut it down), `scripts/graph_viz.sh` for the
 optional graph viewer. See [`cli_howto.md`](cli_howto.md) for the full
 runbook.
 
