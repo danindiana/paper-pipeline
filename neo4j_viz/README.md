@@ -36,6 +36,21 @@ backed each paper's verified, non-hallucinated output.
 
 ## Setup
 
+**Easiest: the wrapper script**, from the repo root:
+
+```bash
+./scripts/graph_viz.sh start --db-path /path/to/your/papers.db
+./scripts/graph_viz.sh status   # what's running
+./scripts/graph_viz.sh stop     # tear it down
+```
+
+`import --db-path PATH` (a subcommand of the same script) re-syncs later
+without restarting anything — safe to re-run any time, every write is a
+database MERGE. `scripts/monitor.sh` picks up this stack's status
+automatically once it's running.
+
+**Manual, if you'd rather see each step:**
+
 ```bash
 cd neo4j_viz
 
@@ -44,8 +59,7 @@ cd neo4j_viz
 #    "A real incident" below for why this matters).
 docker compose up -d
 
-# 2. Import your processed papers into it (safe to re-run any time --
-#    every write is a MERGE, so this just picks up newly-completed papers).
+# 2. Import your processed papers into it.
 python3 import_to_neo4j.py --db-path /path/to/your/papers.db
 
 # 3. Serve the viewer.
@@ -60,9 +74,11 @@ its recorded path).
 ## Stopping / cleaning up
 
 ```bash
-docker compose down          # stops and removes the Neo4j container
+./scripts/graph_viz.sh stop   # from the repo root -- stops cosmos_server.py + Neo4j
+# or, manually:
+docker compose down           # stops and removes the Neo4j container
 # ./data/ (the actual database files) is left on disk -- delete it manually
-# if you want a truly clean slate before the next `docker compose up -d`.
+# if you want a truly clean slate before the next start.
 ```
 
 ## Rebuilding the vendored bundle

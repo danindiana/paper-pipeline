@@ -2,10 +2,11 @@
 # scripts/monitor.sh — observe a running paper-pipeline batch at a glance.
 #
 # Shows: loaded Ollama model, per-GPU utilization/memory, batch progress
-# (from --list), and a stuck heuristic. Adapted from the same-shaped tool
-# in the author's ollama-delegate toolkit (peek.sh) — reimplemented
-# standalone here since this is a separate public repo with no dependency
-# on that project.
+# (from --list), a stuck heuristic, and — if the optional evidence graph
+# viewer (see scripts/graph_viz.sh) is in use — its status too. Adapted
+# from the same-shaped tool in the author's ollama-delegate toolkit
+# (peek.sh) — reimplemented standalone here since this is a separate
+# public repo with no dependency on that project.
 #
 # Usage:
 #   ./scripts/monitor.sh PAPERS_DIR                       # single snapshot
@@ -16,6 +17,8 @@
 set -euo pipefail
 
 OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434}"
+# Must match scripts/graph_viz.sh's COSMOS_PORT.
+GRAPH_VIZ_PORT=8687
 
 # GPU utilization sum (across all GPUs, percent) below which we consider the
 # pipeline potentially stuck, if it's also been running a while with no work.
@@ -134,6 +137,21 @@ print("  MODEL     : {}  ({:.1f} GB VRAM, ctx={})".format(name, vram_gb, ctx))
         else
             echo "  STUCK?    : no (GPU active, or process too new to judge)"
         fi
+    fi
+
+    # --- Optional evidence graph viewer (scripts/graph_viz.sh) ---
+    # Identified by the port it listens on, not by process name -- a
+    # sibling project can run an identically-named script on a different
+    # port at the same time, and matching by name risks reporting on (or
+    # later, acting on) the wrong project's process.
+    local neo4j_status graph_pid
+    neo4j_status=$(docker ps --filter "name=paper-pipeline-neo4j" --format '{{.Status}}' 2>/dev/null || true)
+    graph_pid=""
+    if command -v lsof &>/dev/null; then
+        graph_pid=$(lsof -ti :"$GRAPH_VIZ_PORT" -sTCP:LISTEN 2>/dev/null || true)
+    fi
+    if [[ -n "$neo4j_status" || -n "$graph_pid" ]]; then
+        echo "  GRAPH VIZ : neo4j=${neo4j_status:-not running}  viewer=$([[ -n "$graph_pid" ]] && echo "http://localhost:$GRAPH_VIZ_PORT/" || echo "not running")"
     fi
 
     echo

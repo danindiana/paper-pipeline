@@ -244,8 +244,18 @@ current in-process lock. Details and rationale in
 papers — every verified evidence item, how items relate, which diagrams
 came from which paper — as an interactive WebGL force graph
 ([Neo4j](https://neo4j.com) + [cosmos.gl](https://cosmos.gl)). Entirely
-optional; nothing in the core package imports or requires it. See
-[`neo4j_viz/README.md`](neo4j_viz/README.md) for setup.
+optional; nothing in the core package imports or requires it.
+
+```bash
+pip install neo4j
+./scripts/graph_viz.sh start --db-path /path/to/papers.db
+# open http://localhost:8687/
+```
+
+`./scripts/monitor.sh` picks up its status automatically once it's running.
+See [`neo4j_viz/README.md`](neo4j_viz/README.md) for details and
+[`cli_howto.md`](cli_howto.md#9-evidence-graph-visualization-optional) for
+the full runbook.
 
 ## License
 

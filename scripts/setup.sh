@@ -142,3 +142,7 @@ echo "  paper-pipeline /path/to/pdfs --list          # dry-run status check"
 echo "  paper-pipeline /path/to/pdfs --paper one.pdf  # smoke-test a single paper first"
 echo "  paper-pipeline /path/to/pdfs                  # full batch"
 echo "  ./scripts/monitor.sh /path/to/pdfs --watch     # observe it while it runs"
+echo
+echo "Optional: visualize the evidence graph behind processed papers"
+echo "(requires Docker + 'pip install neo4j' — see neo4j_viz/README.md):"
+echo "  ./scripts/graph_viz.sh start --db-path /path/to/papers.db"

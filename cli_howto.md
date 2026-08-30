@@ -109,7 +109,9 @@ A few things worth knowing before you do this at scale:
 
 Shows the currently-loaded Ollama model, per-GPU utilization/memory, batch
 progress (complete / partial / not-started), and a "possibly stuck" heuristic
-based on how long the process has run with near-zero GPU utilization.
+based on how long the process has run with near-zero GPU utilization. If
+the optional evidence graph viewer (§9) is running, its status shows here
+too — otherwise that line is omitted entirely.
 
 **Manual alternatives**, if you'd rather not use the script:
 
@@ -176,7 +178,28 @@ cause has an automatic repair (see
 [`diagrams/05_future_directions`](diagrams/05_future_directions.svg)); the
 rest are a more varied, harder problem that's documented rather than hidden.
 
-## 9. Troubleshooting cold-start issues
+## 9. Evidence Graph Visualization (optional)
+
+Every processed paper's evidence — the verified items its summary/logic/cpp
+sections were actually generated from, plus how they relate to each other —
+can be rendered as an interactive WebGL graph via
+[`neo4j_viz/`](neo4j_viz), a self-contained Neo4j + cosmos.gl viewer that's
+entirely separate from the core pipeline (no new required dependency,
+nothing here is imported by `paper_pipeline` itself).
+
+```bash
+pip install neo4j   # once
+./scripts/graph_viz.sh start --db-path /path/to/papers.db
+# open http://localhost:8687/
+```
+
+`./scripts/graph_viz.sh status` shows what's running; `stop` tears it down;
+`import --db-path PATH` re-syncs after a batch has processed more papers
+(safe to re-run any time — every write is a database MERGE). Requires
+Docker. Full detail, including a real cross-project Docker incident and how
+it's now prevented, in [`neo4j_viz/README.md`](neo4j_viz/README.md).
+
+## 10. Troubleshooting cold-start issues
 
 1. **`python3.X -m venv` "succeeds" but `pip` inside it is broken/missing** —
    some systems ship a Python whose `ensurepip` silently falls back to
@@ -199,7 +222,7 @@ rest are a more varied, harder problem that's documented rather than hidden.
    recurs, check `nvidia-smi` for anything else holding VRAM, or restart the
    Ollama service.
 
-## 10. Where to go next
+## 11. Where to go next
 
 The [README](README.md#system-diagrams--architecture)'s diagrams explain the
 *why* behind the guidance above in more depth — particularly
