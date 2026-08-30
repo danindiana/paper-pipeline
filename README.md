@@ -114,6 +114,23 @@ this diagram entirely (not just placeholder'd) — hardware model names and all
 live telemetry are kept, following the same disclosure standard as this
 author's other public hardware-diagnostic repos.*
 
+### 8. PCIe Topology
+What "consumer AM4 desktop" actually constrains — real `nvidia-smi topo -m`
+output showing why the Ollama client evicts one model before loading another
+instead of keeping both simultaneously resident.
+![PCIe topology](diagrams/08_pcie_topology.png)
+
+### 9. Local vs. Cloud Economics
+This host's measured electricity cost against real, current cloud GPU
+rental rates for a comparable-VRAM card — marginal cost only, explicitly not
+a total-cost-of-ownership claim.
+![local vs cloud economics](diagrams/09_local_vs_cloud_economics.png)
+
+### 10. Carbon Footprint
+The same measured power draw cross-referenced against the EPA's official
+ERCOT grid emission factor, in grams of CO2 per paper processed.
+![carbon footprint](diagrams/10_carbon_footprint.png)
+
 The diagrams above deliberately reuse the exact neon-on-black Graphviz styling
 (`bgcolor="#0d0d0d"`, neon green/magenta/cyan, Courier New) that
 [`paper_pipeline/diagrams.py`](paper_pipeline/diagrams.py) injects into the

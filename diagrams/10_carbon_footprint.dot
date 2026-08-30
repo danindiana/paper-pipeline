@@ -1,0 +1,41 @@
+digraph CarbonFootprint {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=LR;
+  labelloc=b;
+  label="Carbon Footprint — ERCOT grid, GPU electricity only, Aug 2026\l";
+  fontsize=13;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", fontname="Courier New", fontsize=11, penwidth=2];
+  edge [color="#FF00FF", penwidth=2.0, fontname="Courier New", fontcolor="#ffcc00", fontsize=10];
+
+  subgraph cluster_draw {
+    label="Measured draw (07_host_telemetry)";
+    fontcolor="#00FF41";
+    color="#00FF41";
+    style=dashed;
+    node [color="#00FF41", fontcolor="#00FF41"];
+    draw [label="351.8W GPU package power\n(0.3518 kWh / hour)"];
+  }
+
+  subgraph cluster_grid {
+    label="ERCOT grid carbon intensity";
+    fontcolor="#00E5FF";
+    color="#00b4ff";
+    style=dashed;
+    node [color="#00E5FF", fontcolor="#00E5FF"];
+    grid [label="EPA eGRID ERCT subregion*\n738.038 lb CO2/MWh\n≈ 334.8 g CO2/kWh"];
+  }
+
+  result [shape=box, style="filled,bold", color="#ff0090", fontcolor="#ff0090", fontsize=12,
+    label="0.3518 kWh/hr × 334.8 g CO2/kWh ≈ 117.8g CO2 / hour\nat ~14 papers/hour (fast-tier, see 06_throughput) ≈ 8.4g CO2 per paper\n\nGPU electricity only — excludes CPU, storage array, and grid transmission\nlosses, same honest scoping as the cost figures in 07 and 09."];
+
+  draw -> result;
+  grid -> result;
+
+  source_note [shape=plaintext, fontsize=9, fontcolor="#666666",
+    label="* EPA eGRID2023 data (published Jan 2025, most recent vintage available) —\nepa.gov/egrid — ERCT = Electric Reliability Council of Texas eGRID subregion."];
+
+  result -> source_note [style=invis];
+}

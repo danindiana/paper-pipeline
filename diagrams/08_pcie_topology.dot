@@ -1,0 +1,51 @@
+digraph PcieTopology {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=TB;
+  labelloc=b;
+  label="PCIe Topology — what \"consumer AM4 desktop\" actually constrains\lReal output: nvidia-smi topo -m, nvidia-smi --query-gpu=pcie.link.*\l";
+  fontsize=13;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", fontname="Courier New", fontsize=11, penwidth=2];
+  edge [fontname="Courier New", fontsize=10];
+
+  subgraph cluster_cpu {
+    label="CPU (AMD Ryzen 9 5950X)";
+    fontcolor="#00E5FF";
+    color="#00b4ff";
+    style=dashed;
+    node [color="#00E5FF", fontcolor="#00E5FF"];
+    cpu [label="1 CPU-attached PCIe root complex\nCPU Affinity 0-31 (all cores)\nsingle NUMA node — both GPUs equally close"];
+  }
+
+  subgraph cluster_gpu0 {
+    label="GPU0";
+    fontcolor="#00FF41";
+    color="#00FF41";
+    style=dashed;
+    node [color="#00FF41", fontcolor="#00FF41"];
+    gpu0 [label="RTX 5080\nPCIe Gen4 — x16 max, x8 CURRENT"];
+  }
+
+  subgraph cluster_gpu1 {
+    label="GPU1";
+    fontcolor="#FF00FF";
+    color="#FF00FF";
+    style=dashed;
+    node [color="#FF00FF", fontcolor="#FF00FF"];
+    gpu1 [label="RTX 3080\nPCIe Gen4 — x16 max, x8 CURRENT"];
+  }
+
+  cpu -> gpu0 [color="#00FF41", penwidth=3, label="x8 lanes"];
+  cpu -> gpu1 [color="#FF00FF", penwidth=3, label="x8 lanes"];
+  gpu0 -> gpu1 [dir=both, color="#ffcc00", fontcolor="#ffcc00", penwidth=2, style=dashed,
+    label="PHB — traverses the CPU's host bridge\n(no NVLink, no P2P shortcut)"];
+
+  takeaway [shape=box, style="filled,bold", color="#ff0090", fontcolor="#ff0090", fontsize=12,
+    label="One CPU-attached x16 slot, electrically split x8/x8 across two GPU slots.\nThis is why OllamaVRAM evicts one model before loading another rather than\nkeeping both simultaneously resident: the constraint here is shared CPU\nlane bandwidth, not just combined VRAM capacity. A datacenter board with\nNVLink or per-GPU x16 wouldn't have this limitation — this one does,\nbecause it's a consumer AM4 desktop, not a server chassis."];
+
+  { rank=same; gpu0; gpu1; }
+  gpu0 -> takeaway [style=invis];
+  gpu1 -> takeaway [style=invis];
+}

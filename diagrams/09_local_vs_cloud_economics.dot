@@ -1,0 +1,43 @@
+digraph LocalVsCloud {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=LR;
+  labelloc=b;
+  label="Local Electricity vs. Renting an Equivalent Cloud GPU — marginal cost only, Aug 2026\lHardware capex/depreciation deliberately excluded — no verified purchase-price records for this rig exist to cite honestly.\l";
+  fontsize=12;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", fontname="Courier New", fontsize=11, penwidth=2];
+  edge [style=invis];
+
+  subgraph cluster_local {
+    label="This host (measured, see 07_host_telemetry)";
+    fontcolor="#00FF41";
+    color="#00FF41";
+    style=dashed;
+    node [color="#00FF41", fontcolor="#00FF41"];
+    local [label="351.8W GPU draw\n× $0.126/kWh (Austin Energy 2026)\n= 4.4¢ / hour"];
+  }
+
+  subgraph cluster_cloud {
+    label="Renting a comparable-VRAM cloud GPU (RTX 4090, 24GB)*";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    node [color="#ffcc00", fontcolor="#ffcc00"];
+    vastlow [label="Vast.ai (low end)\n$0.13 / hour"];
+    runpod [label="RunPod on-demand\nfrom $0.34 / hour"];
+    vasthigh [label="Vast.ai (high end)\n$0.59 / hour"];
+  }
+
+  ratio [shape=box, style="filled,bold", color="#ff0090", fontcolor="#ff0090", fontsize=12,
+    label="Running locally is roughly 3x–13x cheaper on pure electricity\nthan renting an equivalent single cloud GPU by the hour\n(2.9x vs. Vast.ai's cheapest listings, 7.7x vs. RunPod on-demand,\n13.3x vs. Vast.ai's higher-end listings) — median case ~7-8x.\n\nThis is NOT a total-cost-of-ownership comparison: it excludes this\nrig's hardware purchase price, which cloud rental has no equivalent\nof. A fair TCO comparison would need a real receipt, not a guess."];
+
+  source_note [shape=plaintext, fontsize=9, fontcolor="#666666",
+    label="* vast.ai/pricing/gpu/RTX-4090 · runpod.io/gpu-models/rtx-4090 — RTX 4090 (24GB) chosen as the\nclosest widely-available cloud analog to this host's combined ~26.5GB dual-GPU VRAM pool,\nsince Ollama splits one loaded model across both cards rather than running two separate models."];
+
+  { rank=same; local; vastlow; runpod; vasthigh; }
+  local -> ratio [style=invis];
+  runpod -> ratio [style=invis];
+  ratio -> source_note [style=invis];
+}
