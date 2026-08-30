@@ -16,7 +16,7 @@ from threading import Event
 from typing import Callable, Optional, Protocol
 
 from . import config, store
-from .diagrams import ensure_neon_black, parse_diagrams, render_dot
+from .diagrams import ensure_neon_black, parse_diagrams, render_dot, repair_dot_syntax
 from .errors import LeaseLostError, ShutdownRequested
 from .prompts import DIAGRAM_PROMPT, PROMPTS
 from .reader import (
@@ -103,6 +103,7 @@ def _handle_diagrams(
     rows: list[tuple[str, str, Optional[str]]] = []
     for idx, (title, dot_src) in enumerate(diagrams, 1):
         dot_src = ensure_neon_black(dot_src)
+        dot_src = repair_dot_syntax(dot_src)
         svg = render_dot(dot_src)
         status = "✓" if svg is not None else "✗ (dot saved, SVG render failed)"
         print(f"       {idx}. {title:<45} {status}")

@@ -13,7 +13,7 @@ digraph FutureDirections {
   root [label="Future Directions", shape=ellipse, penwidth=3];
 
   f1 [label="Adaptive per-chunk\ncontext sizing", color="#00E5FF", fontcolor="#00E5FF"];
-  f2 [label="DOT-syntax\nauto-repair", color="#ffcc00", fontcolor="#ffcc00"];
+  f2 [label="Broader DOT-output\ncorruption long tail", color="#ffcc00", fontcolor="#ffcc00"];
   f3 [label="think:false\nfor evidence extraction", color="#ff6600", fontcolor="#ff6600"];
   f4 [label="Cross-process\nVRAM coordination", color="#FF00FF", fontcolor="#FF00FF"];
 
@@ -25,7 +25,7 @@ digraph FutureDirections {
   n1 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
       label="measure real prompt tokens,\nallocate remaining budget\ndynamically vs. fixed 32768"];
   n2 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
-      label="mirror the JSON backslash\nfix for observed invalid\nRoot [\"label='...'\"] syntax"];
+      label="quote-wrapped-label repair shipped,\nfixed 5/55 real render failures --\nrest are truncation, invented\nattrs, control chars: a harder,\nmore varied problem"];
   n3 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
       label="untested this session --\na GPU OOM blocked\nlive testing"];
   n4 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,

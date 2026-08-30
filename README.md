@@ -10,7 +10,7 @@
   <a href="https://ubuntu.com"><img src="https://img.shields.io/badge/OS-Ubuntu_Linux-E95420.svg?style=flat-square&logo=ubuntu" alt="Ubuntu"></a>
   <a href="https://nvidia.com"><img src="https://img.shields.io/badge/GPU-RTX_5080_|_3080-76B900.svg?style=flat-square&logo=nvidia" alt="NVIDIA GPUs"></a>
   <a href="https://ollama.com"><img src="https://img.shields.io/badge/ollama-resident-orange.svg?style=flat-square" alt="Ollama Resident"></a>
-  <img src="https://img.shields.io/badge/tests-53_passing-brightgreen.svg?style=flat-square" alt="53 Tests Passing">
+  <img src="https://img.shields.io/badge/tests-58_passing-brightgreen.svg?style=flat-square" alt="58 Tests Passing">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -167,7 +167,7 @@ pip install pytest
 python -m pytest tests/ -v
 ```
 
-53 tests passing. Four real production bugs were found and fixed with a
+58 tests passing. Five real production bugs were found and fixed with a
 regression test apiece:
 
 * Empty-generation retry/recovery — `tests/test_empty_generation_retry.py`
@@ -179,6 +179,11 @@ regression test apiece:
 * Unescaped LaTeX backslashes breaking the same JSON parsing —
   `test_unescaped_latex_backslash_in_support_does_not_break_parsing` in
   `tests/test_evidence.py`
+* Invalid Graphviz attribute syntax (`Node ["label='...'"];` instead of
+  `Node [label="...";]`) breaking diagram rendering —
+  `tests/test_diagrams.py`. Confirmed against a real 308-paper overnight
+  batch: fixes 5 of 55 diagrams that failed to render (the rest fail for
+  more varied, less tractable reasons — see `diagrams/05_future_directions`).
 
 ## Hardware This Was Developed & Tested On
 
@@ -189,11 +194,13 @@ combined VRAM budget.
 
 ## Future Directions
 
-Four concrete, unimplemented follow-ups — adaptive per-chunk context sizing,
-a DOT-syntax auto-repair pass mirroring the JSON fix already shipped,
-`think:false` experimentation for evidence extraction (untested — a GPU OOM
-blocked live testing), and cross-process VRAM coordination beyond the current
-in-process lock. Details and rationale in
+Four concrete follow-ups — adaptive per-chunk context sizing; the broader
+DOT-output corruption long tail (a narrow quote-wrapped-label repair already
+shipped, fixing 5 of 55 real render failures in one overnight batch — the rest
+are more varied and harder: truncated generation, invented attributes, control
+characters); `think:false` experimentation for evidence extraction (untested —
+a GPU OOM blocked live testing); and cross-process VRAM coordination beyond the
+current in-process lock. Details and rationale in
 [`diagrams/05_future_directions`](diagrams/05_future_directions.svg).
 
 ## License

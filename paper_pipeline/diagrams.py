@@ -63,6 +63,41 @@ def ensure_neon_black(dot_src: str) -> str:
     return dot_src
 
 
+# ── Repair ───────────────────────────────────────────────────────────────────
+
+_QUOTE_WRAPPED_LABEL_RE = re.compile(r"\[\s*\"label='(.*?)'\"?\s*\]")
+
+
+def repair_dot_syntax(dot_src: str) -> str:
+    """Repair a known invalid attribute-list pattern from the LLM.
+
+    Observed live across a 308-paper batch: the model occasionally wraps an
+    entire `label='...'` assignment in an extra, incorrect outer pair of
+    double quotes — `Node ["label='text'"];` — instead of valid
+    `Node [label="text"];`, sometimes also dropping the outer quote's closer
+    (`Node ["label='text'];`). Both variants parse as a single bare quoted
+    string with no attribute name, which `dot` rejects outright.
+
+    This rewrites either variant to valid `[label="..."]` syntax, escaping
+    the label text for its new quoting context (backslashes doubled before
+    quotes are escaped) so the original characters render unchanged rather
+    than being reinterpreted as Graphviz's own \\n/\\l/\\r label escapes.
+
+    Confirmed against a real batch: fixes 5 of 55 diagrams that failed to
+    render for other, more varied reasons (truncated generation, invented
+    attribute names, control characters) — those are a materially different,
+    much less tractable problem and are not addressed here. Confirmed to be
+    a no-op on 1,111 diagrams that already rendered successfully (zero
+    false-positive matches on valid syntax).
+    """
+    def repl(match: re.Match) -> str:
+        inner = match.group(1)
+        inner = inner.replace("\\", "\\\\").replace('"', '\\"')
+        return f'[label="{inner}"]'
+
+    return _QUOTE_WRAPPED_LABEL_RE.sub(repl, dot_src)
+
+
 # ── Rendering ────────────────────────────────────────────────────────────────
 
 def render_dot(dot_src: str) -> Optional[str]:
