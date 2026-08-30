@@ -6,6 +6,20 @@ This is the detailed, from-scratch guide for setting up and running
 the one with the troubleshooting, the "why", and the things that bit the
 maintainer during actual runs.
 
+**Which command do I actually run?**
+
+| To... | Run |
+|---|---|
+| Process papers | `paper-pipeline /path/to/pdfs` |
+| **Watch and understand what's happening** | `paper-pipeline-tui /path/to/pdfs` |
+| Cold-start a new machine | `./scripts/setup.sh` |
+| Check status from a script/tmux, not interactively | `./scripts/monitor.sh /path/to/pdfs --watch` |
+| Manage the optional evidence-graph viewer | `./scripts/graph_viz.sh start/stop/status` |
+
+`paper-pipeline-tui` is read-only — it never starts, stops, or reprocesses
+anything. It's the recommended way to see what's going on; `paper-pipeline`
+itself is still how you actually run a batch.
+
 ## 1. Prerequisites
 
 * **OS**: Ubuntu/Debian assumed below (apt commands given — the CI target and
@@ -101,19 +115,34 @@ A few things worth knowing before you do this at scale:
 
 ## 5. Observability while it runs
 
-**Primary tool:**
+**Primary tool — the interactive dashboard:**
+
+```bash
+paper-pipeline-tui /path/to/pdfs
+```
+
+Three views (`1`/`2`/`3` to switch, `r` to refresh, `q` to quit): batch
+progress for the folder you point it at (including which paper, if any, is
+being processed *right now*), a plain-language explanation of every
+database table with live stats, and system status (Ollama model, GPU,
+optional graph viewer). Read-only — it never touches the database or starts/
+stops anything. `--once` prints all three views as plain text and exits, for
+logging or scripting.
+
+**Scriptable alternative** — for tmux status lines, cron, or anywhere an
+interactive terminal isn't available:
 
 ```bash
 ./scripts/monitor.sh /path/to/pdfs --watch
 ```
 
-Shows the currently-loaded Ollama model, per-GPU utilization/memory, batch
-progress (complete / partial / not-started), and a "possibly stuck" heuristic
-based on how long the process has run with near-zero GPU utilization. If
-the optional evidence graph viewer (§9) is running, its status shows here
-too — otherwise that line is omitted entirely.
+Shows the same core signals (loaded Ollama model, per-GPU utilization/memory,
+batch progress, a "possibly stuck" heuristic) as a single auto-refreshing
+snapshot rather than a navigable dashboard. If the optional evidence graph
+viewer (§9) is running, its status shows here too — otherwise that line is
+omitted entirely.
 
-**Manual alternatives**, if you'd rather not use the script:
+**Manual alternatives**, if you'd rather not use either tool:
 
 | Check | Command |
 |---|---|

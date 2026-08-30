@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "paper-pipeline"
-version = "0.6.2"
+version = "0.7.0"
 description = "Evidence-grounded research paper synthesis using local LLMs via Ollama"
 readme = "README.md"
 license = { text = "MIT" }
@@ -27,6 +27,7 @@ ocr = [
 
 [project.scripts]
 paper-pipeline = "paper_pipeline.__main__:main"
+paper-pipeline-tui = "paper_pipeline.tui:main"
 
 [tool.setuptools.packages.find]
 include = ["paper_pipeline*"]

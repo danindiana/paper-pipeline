@@ -10,7 +10,7 @@
   <a href="https://ubuntu.com"><img src="https://img.shields.io/badge/OS-Ubuntu_Linux-E95420.svg?style=flat-square&logo=ubuntu" alt="Ubuntu"></a>
   <a href="https://nvidia.com"><img src="https://img.shields.io/badge/GPU-RTX_5080_|_3080-76B900.svg?style=flat-square&logo=nvidia" alt="NVIDIA GPUs"></a>
   <a href="https://ollama.com"><img src="https://img.shields.io/badge/ollama-resident-orange.svg?style=flat-square" alt="Ollama Resident"></a>
-  <img src="https://img.shields.io/badge/tests-62_passing-brightgreen.svg?style=flat-square" alt="62 Tests Passing">
+  <img src="https://img.shields.io/badge/tests-78_passing-brightgreen.svg?style=flat-square" alt="78 Tests Passing">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -33,6 +33,38 @@ but backed by Neo4j instead of a single SQLite file).
 > misbehave when you hold them to that standard.
 
 ---
+
+## Where to start: `paper-pipeline-tui`
+
+Four command-line tools exist in this repo, and this is the one to run
+first. It's a **read-only** dashboard — it never starts, stops, or
+reprocesses anything (that's still `paper-pipeline` itself) — it just
+watches and explains:
+
+```bash
+paper-pipeline-tui /path/to/pdfs
+```
+
+Three views, switchable with `1`/`2`/`3` (`r` to refresh, `q` to quit):
+
+- **Batch Progress** — per-paper complete/partial/not-started status for the
+  folder you pointed it at, and which paper (if any) is being processed
+  *right now*, cross-referenced against the database's own lease records.
+- **Database Entities** — a plain-language explanation of every real table
+  in the SQLite schema (`papers`, `diagrams`, `ocr_cache`,
+  `processing_leases`, `schema_meta`) alongside live row counts, so you can
+  see what's actually being tracked, not just take it on faith.
+- **System Status** — loaded Ollama model, per-GPU utilization, and the
+  optional evidence-graph viewer's status if it's running.
+
+Add `--once` to print all three views as plain text and exit — no
+interactive terminal required, useful for logging or scripting.
+
+Everything else keeps its place: `paper-pipeline` to actually process
+papers, `scripts/setup.sh` for cold-start, `scripts/monitor.sh` for a
+scriptable/tmux-friendly status line, `scripts/graph_viz.sh` for the
+optional graph viewer. See [`cli_howto.md`](cli_howto.md) for the full
+runbook.
 
 ## Technical Features
 
@@ -202,7 +234,7 @@ pip install pytest
 python -m pytest tests/ -v
 ```
 
-62 tests passing. Six real production bugs were found and fixed with a
+78 tests passing. Six real production bugs were found and fixed with a
 regression test apiece:
 
 * Empty-generation retry/recovery — `tests/test_empty_generation_retry.py`
