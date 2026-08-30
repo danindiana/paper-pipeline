@@ -1,0 +1,18 @@
+{
+  "name": "paper-pipeline-cosmos-build",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build-only project to vendor @cosmos.gl/graph into a static bundle for neo4j_viz/static/. Not part of the paper-pipeline Python package.",
+  "scripts": {
+    "build": "esbuild entry.js --bundle --format=iife --outfile=../static/cosmos_bundle.js --minify"
+  },
+  "dependencies": {
+    "@cosmos.gl/graph": "^3.4.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "allowScripts": {
+    "esbuild@0.24.2": true
+  }
+}

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>paper-pipeline — Evidence Graph</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #0d0d0d; overflow: hidden; }
+  body { font-family: "Courier New", monospace; color: #00FF41; }
+  #graph { position: absolute; inset: 0; }
+  #status {
+    position: absolute; top: 10px; left: 10px; z-index: 10;
+    background: rgba(10,10,10,0.85); border: 1px solid #00FF41;
+    padding: 8px 12px; font-size: 13px;
+  }
+  #legend {
+    position: absolute; top: 10px; right: 10px; z-index: 10;
+    background: rgba(10,10,10,0.85); border: 1px solid #00FF41;
+    padding: 8px 12px; font-size: 12px;
+  }
+  #legend span { display: inline-block; width: 10px; height: 10px; margin-right: 6px; }
+  #tooltip {
+    position: absolute; z-index: 20; display: none;
+    background: rgba(10,10,10,0.95); border: 1px solid #00E5FF; color: #00E5FF;
+    padding: 6px 10px; font-size: 12px; pointer-events: none; max-width: 400px;
+  }
+  #modal {
+    position: absolute; inset: 0; z-index: 30; display: none;
+    background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+  }
+  #modal-content {
+    background: #0a0a0a; border: 2px solid #FF00FF; color: #FF00FF;
+    padding: 20px; max-width: 700px; max-height: 80vh; overflow-y: auto;
+    font-size: 13px; white-space: pre-wrap;
+  }
+  #modal-close {
+    position: absolute; top: 8px; right: 14px; cursor: pointer;
+    font-size: 20px; color: #ffcc00;
+  }
+</style>
+</head>
+<body>
+  <div id="graph"></div>
+  <div id="status">Loading evidence graph…</div>
+  <div id="legend">
+    <div><span style="background:#00FF41"></span>Paper</div>
+    <div><span style="background:#00E5FF"></span>Evidence</div>
+    <div><span style="background:#FF00FF"></span>Diagram</div>
+  </div>
+  <div id="tooltip"></div>
+  <div id="modal"><div id="modal-content" style="position:relative">
+    <span id="modal-close">×</span>
+    <div id="modal-body"></div>
+  </div></div>
+
+  <script src="cosmos_bundle.js"></script>
+  <script>
+    const COLORS = { Paper: [0, 1, 0.25, 1], Evidence: [0, 0.9, 1, 1], Diagram: [1, 0, 1, 1] };
+    const SIZES = { Paper: 10, Evidence: 5, Diagram: 6 };
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
+    async function main() {
+      const statusEl = document.getElementById("status");
+      const tooltipEl = document.getElementById("tooltip");
+      const modalEl = document.getElementById("modal");
+      const modalBody = document.getElementById("modal-body");
+      document.getElementById("modal-close").addEventListener("click", () => { modalEl.style.display = "none"; });
+      modalEl.addEventListener("click", e => { if (e.target === modalEl) modalEl.style.display = "none"; });
+
+      const resp = await fetch("/api/graph");
+      if (!resp.ok) {
+        statusEl.textContent = `Failed to load graph: ${resp.status}`;
+        return;
+      }
+      const { nodes, edges } = await resp.json();
+      if (nodes.length === 0) {
+        statusEl.textContent = "Graph is empty — run import_to_neo4j.py against a processed paper-pipeline database first.";
+        return;
+      }
+
+      const indexById = new Map();
+      nodes.forEach((n, i) => indexById.set(n.id, i));
+
+      const colors = new Float32Array(nodes.length * 4);
+      const sizes = new Float32Array(nodes.length);
+      nodes.forEach((n, i) => {
+        const [r, g, b, a] = COLORS[n.type] || [0.6, 0.6, 0.6, 1];
+        colors[i * 4] = r; colors[i * 4 + 1] = g; colors[i * 4 + 2] = b; colors[i * 4 + 3] = a;
+        sizes[i] = SIZES[n.type] || 4;
+      });
+
+      // CosmosGL's simulation adjusts positions over time but needs a
+      // starting point per node -- without this every point defaults to
+      // the same coordinate and nothing visibly separates on screen.
+      const SPACE_SIZE = 4096;
+      const positions = new Float32Array(nodes.length * 2);
+      for (let i = 0; i < nodes.length; i++) {
+        positions[i * 2] = Math.random() * SPACE_SIZE;
+        positions[i * 2 + 1] = Math.random() * SPACE_SIZE;
+      }
+
+      const links = new Float32Array(edges.length * 2);
+      let e = 0;
+      for (const edge of edges) {
+        const s = indexById.get(edge.source), t = indexById.get(edge.target);
+        if (s === undefined || t === undefined) continue;
+        links[e * 2] = s; links[e * 2 + 1] = t; e++;
+      }
+      const linksTrimmed = e === edges.length ? links : links.slice(0, e * 2);
+
+      async function openDetail(nodeIndex) {
+        const node = nodes[nodeIndex];
+        modalEl.style.display = "flex";
+        modalBody.textContent = "Loading…";
+        try {
+          const r = await fetch(`/api/node/${node.id}`);
+          const { type, props } = await r.json();
+          const lines = Object.entries(props || {}).map(([k, v]) => `${k}: ${v}`).join("\n");
+          modalBody.textContent = `[${type}] ${node.label}\n\n${lines}`;
+        } catch (err) {
+          modalBody.textContent = `Failed to load: ${err.message}`;
+        }
+      }
+
+      const graph = new CosmosGraph(document.getElementById("graph"), {
+        backgroundColor: "#0d0d0d",
+        spaceSize: SPACE_SIZE,
+        linkDefaultColor: "#FF00FF",
+        linkOpacity: 0.25,
+        linkWidthScale: 1,
+        renderHoveredPointRing: true,
+        hoveredPointRingColor: "#ffffff",
+        fitViewOnInit: true,
+        fitViewPadding: 0.2,
+        enableDrag: true,
+        simulationRepulsion: 0.5,
+        onPointMouseOver: (i) => {
+          const n = nodes[i];
+          if (n) {
+            tooltipEl.style.display = "block";
+            tooltipEl.textContent = `${n.type}: ${n.label}`;
+          }
+        },
+        onPointMouseOut: () => { tooltipEl.style.display = "none"; },
+        onMouseMove: (x, y, ev) => {
+          if (ev) { tooltipEl.style.left = `${ev.clientX + 12}px`; tooltipEl.style.top = `${ev.clientY + 12}px`; }
+        },
+        onClick: (i) => { if (i !== undefined) openDetail(i); },
+      });
+
+      graph.setPointPositions(positions);
+      graph.setPointColors(colors);
+      graph.setPointSizes(sizes);
+      graph.setLinks(linksTrimmed);
+      graph.render();
+
+      statusEl.textContent = `${nodes.length.toLocaleString()} nodes / ${e.toLocaleString()} edges`;
+    }
+
+    main().catch(err => {
+      document.getElementById("status").textContent = `Error: ${err.message}`;
+      console.error(err);
+    });
+  </script>
+</body>
+</html>

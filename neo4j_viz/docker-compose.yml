@@ -1,0 +1,14 @@
+name: paper-pipeline-graph
+
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: paper-pipeline-neo4j
+    ports:
+      - "127.0.0.1:7475:7474" # HTTP Browser Console
+      - "127.0.0.1:7688:7687" # Bolt Protocol (queries)
+    volumes:
+      - ./data:/data
+    environment:
+      - NEO4J_AUTH=neo4j/paperpipeline
+    restart: unless-stopped

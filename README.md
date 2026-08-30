@@ -238,6 +238,15 @@ a GPU OOM blocked live testing); and cross-process VRAM coordination beyond the
 current in-process lock. Details and rationale in
 [`diagrams/05_future_directions`](diagrams/05_future_directions.svg).
 
+## Optional: Evidence Graph Visualization
+
+[`neo4j_viz/`](neo4j_viz) renders the evidence graph behind your processed
+papers — every verified evidence item, how items relate, which diagrams
+came from which paper — as an interactive WebGL force graph
+([Neo4j](https://neo4j.com) + [cosmos.gl](https://cosmos.gl)). Entirely
+optional; nothing in the core package imports or requires it. See
+[`neo4j_viz/README.md`](neo4j_viz/README.md) for setup.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
