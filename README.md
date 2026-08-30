@@ -102,6 +102,18 @@ mirrors a fix already shipped for a different part of the pipeline.
 Real numbers from a 10-paper canary batch, not estimates.
 ![throughput](diagrams/06_throughput.png)
 
+### 7. Host Telemetry & Running Cost
+What running this actually looks like on real hardware — live `nvidia-smi`/
+`lscpu`/`neofetch`/`lsblk`/`sensors` readings captured mid-batch, cross-referenced
+against a real, sourced 2026 Austin Energy rate to answer "what does this cost
+to run" in cents per paper rather than in the abstract.
+![host telemetry](diagrams/07_host_telemetry.png)
+
+*Redaction note: hostname, username, MAC address, and LAN IP are omitted from
+this diagram entirely (not just placeholder'd) — hardware model names and all
+live telemetry are kept, following the same disclosure standard as this
+author's other public hardware-diagnostic repos.*
+
 The diagrams above deliberately reuse the exact neon-on-black Graphviz styling
 (`bgcolor="#0d0d0d"`, neon green/magenta/cyan, Courier New) that
 [`paper_pipeline/diagrams.py`](paper_pipeline/diagrams.py) injects into the

@@ -1,0 +1,86 @@
+digraph HostTelemetry {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=TB;
+  labelloc=b;
+  label="Host Telemetry & Running Cost — captured live, mid-batch, Aug 2026\lPoint-in-time snapshot during active processing, not an idle baseline — repeat readings will vary with load.\l";
+  fontsize=13;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", fontname="Courier New", fontsize=11, penwidth=2];
+  edge [style=invis];
+
+  subgraph cluster_compute {
+    label="Compute (lscpu / neofetch)";
+    fontcolor="#00E5FF";
+    color="#00b4ff";
+    style=dashed;
+    node [color="#00E5FF", fontcolor="#00E5FF"];
+    compute [label="AMD Ryzen 9 5950X\n16C / 32T @ 3.4GHz base\nASRock X570 Taichi (AM4)\nTctl: 75.1°C (under load)"];
+  }
+
+  subgraph cluster_memory {
+    label="Memory (neofetch)";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    node [color="#ffcc00", fontcolor="#ffcc00"];
+    memory [label="64 GB DDR4"];
+  }
+
+  subgraph cluster_gpu {
+    label="GPU (nvidia-smi, live)";
+    fontcolor="#00FF41";
+    color="#00FF41";
+    style=dashed;
+    node [color="#00FF41", fontcolor="#00FF41"];
+    gpu0 [label="RTX 5080 · 16GB\n113.4W / 300W cap · 63°C\n42% util · 12.5/16.3GB VRAM"];
+    gpu1 [label="RTX 3080 · 10GB\n238.4W / 300W cap · 65°C\n49% util · 7.4/10.2GB VRAM"];
+    gputotal [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
+      label="combined draw: 351.8W"];
+    gpu0 -> gputotal [style=dashed, color="#666666", arrowhead=none];
+    gpu1 -> gputotal [style=dashed, color="#666666", arrowhead=none];
+  }
+
+  subgraph cluster_storage {
+    label="Storage (lsblk)";
+    fontcolor="#FF00FF";
+    color="#FF00FF";
+    style=dashed;
+    node [color="#FF00FF", fontcolor="#FF00FF"];
+    storage [label="10 block devices\n3× NVMe: Intel 954GB, WD 466GB,\n  Crucial 3.6TB (hosts the SQLite DB)\n2× SATA SSD: Samsung 466GB, WD 932GB\n5× HDD: 2× Seagate 10.9TB,\n  WD 932GB, Hitachi 1.8TB, WD 3.6TB"];
+  }
+
+  subgraph cluster_network {
+    label="Network (ifconfig)";
+    fontcolor="#00b4ff";
+    color="#00b4ff";
+    style=dashed;
+    node [color="#00b4ff", fontcolor="#00b4ff"];
+    network [label="1000Mb/s wired Ethernet\n(hostname / MAC / IP omitted —\nsee README redaction note)"];
+  }
+
+  subgraph cluster_os {
+    label="OS (neofetch)";
+    fontcolor="#ffcc00";
+    color="#ffcc00";
+    style=dashed;
+    node [color="#ffcc00", fontcolor="#ffcc00"];
+    os [label="Ubuntu 22.04.5 LTS\nkernel 6.8.12"];
+  }
+
+  cost [shape=box, style="filled,bold", color="#ff0090", fontcolor="#ff0090", fontsize=12,
+    label="Running cost (GPU package power only — not a full-system wall-meter reading)\n351.8W × $0.126/kWh (Austin Energy 2026 effective rate*) ≈ 4.4¢ / hour\nat ~14 papers/hour (fast-tier, see diagrams/06_throughput) ≈ 0.3¢ of electricity per paper"];
+
+  source_note [shape=plaintext, fontsize=9, fontcolor="#666666",
+    label="* austinenergy.com/rates/residential-rates · nuwattenergy.com/en/texas/austin-energy-rates-2026 (tiered $0.0464–$0.10884/kWh, blended ~12.6¢/kWh, effective Jul 1 2026)"];
+
+  { rank=same; compute; memory; }
+  { rank=same; gpu0; gpu1; }
+  { rank=same; storage; network; os; }
+
+  compute -> cost [style=invis];
+  gputotal -> cost [style=invis];
+  storage -> cost [style=invis];
+  cost -> source_note [style=invis];
+}
