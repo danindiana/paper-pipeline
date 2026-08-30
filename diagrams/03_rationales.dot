@@ -1,0 +1,30 @@
+digraph Rationales {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=LR;
+  labelloc=t;
+  label="Design Rationales — Decision vs. Rejected Alternative";
+  fontsize=22;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", fontname="Courier New", fontsize=12, penwidth=2];
+  edge [penwidth=2.0, fontname="Courier New", fontcolor="#ffcc00", fontsize=10];
+
+  node [color="#00FF41", fontcolor="#00FF41"];
+  d1 [label="SQLite + WAL\n(single file)"];
+  d2 [label="Page-count-based\nmodel tier routing"];
+  d3 [label="Hierarchical map-reduce\n+ immutable evidence IDs\n+ verbatim verification"];
+  d4 [label="Lease/fencing with\ngeneration counters"];
+
+  node [color="#666666", fontcolor="#999999", style="filled,dashed"];
+  r1 [label="rejected:\nNeo4j graph DB"];
+  r2 [label="rejected:\nalways use reasoning tier"];
+  r3 [label="rejected:\ntrust model claims directly"];
+  r4 [label="rejected:\nno locking / plain file locks"];
+
+  edge [color="#00b4ff"];
+  r1 -> d1 [label="no server dependency --\ndeliberately the simpler,\nstandalone sibling of\nlobster-graph"];
+  r2 -> d2 [label="short + very-long docs favor\nper-chunk speed; 'hard middle'\nlength has budget to spend\non reasoning"];
+  r3 -> d3 [label="prevents hallucinated citations --\nnothing downstream can cite a\nclaim not traced to an exact\nsource excerpt"];
+  r4 -> d4 [label="safe concurrent / interrupted\nprocessing without corrupting\nshared SQLite state"];
+}

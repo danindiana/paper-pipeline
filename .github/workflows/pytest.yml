@@ -1,0 +1,21 @@
+name: Pytest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: sudo apt-get update && sudo apt-get install -y graphviz tesseract-ocr tesseract-ocr-eng
+      - run: pip install -e .
+      - run: pip install pytest
+      - run: python -m pytest tests/ -v

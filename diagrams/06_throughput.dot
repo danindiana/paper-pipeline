@@ -1,0 +1,20 @@
+digraph Throughput {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=LR;
+  labelloc=b;
+  label="10-Paper Canary Batch — Observed Timings";
+  fontsize=18;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", color="#00FF41", fontcolor="#00FF41", fontname="Courier New", fontsize=12, penwidth=2];
+  edge [color="#FF00FF", penwidth=2.0, style=dashed, arrowhead=vee];
+
+  t1 [label="Canary batch:\n10 papers, ~77 min\n(fully cold, first run)"];
+  t2 [label="Completion rate\nacross 3 runs:\n6/10 -> 7/10 -> 10/10\n(as fixes landed)", color="#00E5FF", fontcolor="#00E5FF"];
+  t3 [label="Generation throughput:\n~120-125 tokens/sec\n(Ollama timing logs)", color="#ffcc00", fontcolor="#ffcc00"];
+  t4 [label="Model-tier switch cost:\n~20-30s\n(evict + reload)", color="#ff6600", fontcolor="#ff6600"];
+  t5 [label="Per-paper variance:\nminutes to tens of minutes --\ndriven by page/chunk count,\nnot a flat rate", color="#FF00FF", fontcolor="#FF00FF"];
+
+  t1 -> t2 -> t3 -> t4 -> t5;
+}

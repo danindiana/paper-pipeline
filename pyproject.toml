@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paper-pipeline"
+version = "0.6.0"
+description = "Evidence-grounded research paper synthesis using local LLMs via Ollama"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "pymupdf>=1.24",
+    "requests>=2.31",
+]
+
+[project.urls]
+Homepage = "https://github.com/danindiana/paper-pipeline"
+Repository = "https://github.com/danindiana/paper-pipeline"
+
+[project.optional-dependencies]
+ocr = [
+    # Tesseract binary + language packs are system packages (apt install
+    # tesseract-ocr tesseract-ocr-eng), not Python packages.  PyMuPDF
+    # drives it directly.  This group exists only as documentation.
+]
+
+[project.scripts]
+paper-pipeline = "paper_pipeline.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["paper_pipeline*"]

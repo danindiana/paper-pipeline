@@ -1,0 +1,52 @@
+digraph Catch22s {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=TB;
+  labelloc=t;
+  label="Four Catch-22s Found This Session";
+  fontsize=22;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", color="#00FF41", fontcolor="#00FF41", fontname="Courier New", fontsize=12, penwidth=2];
+  edge [color="#FF00FF", penwidth=2.5, dir=both, fontname="Courier New", fontcolor="#ffcc00", fontsize=10];
+
+  subgraph cluster_a {
+    label="Catch-22 #1: Fidelity vs. Encoding";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    a1 [label="Verbatim quote\nfidelity"];
+    a2 [label="Valid JSON\nencoding"];
+    a1 -> a2 [label="faithful copies carry raw\ncontrol chars / backslashes\n-> JSON parse failure\n(bugs #3, #4)"];
+  }
+
+  subgraph cluster_b {
+    label="Catch-22 #2: Thinking vs. Answering";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    b1 [label="Context budget\nspent thinking"];
+    b2 [label="Context budget\nspent answering"];
+    b1 -> b2 [label="one shared budget --\na reasoning model can spend\n100% on thinking, 0% on\nthe answer (bug #2)"];
+  }
+
+  subgraph cluster_c {
+    label="Catch-22 #3: Workers vs. VRAM Lock";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    c1 [label="--workers N"];
+    c2 [label="Global VRAM RLock\n(one generation at a time)"];
+    c1 -> c2 [label="more workers looks like\nmore throughput, but\ngeneration is fully\nserialized regardless"];
+  }
+
+  subgraph cluster_d {
+    label="Catch-22 #4: Retry vs. Determinism";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    d1 [label="force_reload retry"];
+    d2 [label="Deterministic\ncontext starvation"];
+    d1 -> d2 [label="fixes transient/corrupted\nsessions, powerless against\nsame eval_count twice --\nGenerationResult metadata\nis what tells them apart"];
+  }
+}

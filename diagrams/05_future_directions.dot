@@ -1,0 +1,38 @@
+digraph FutureDirections {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=TB;
+  labelloc=t;
+  label="Future Directions";
+  fontsize=22;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", color="#00FF41", fontcolor="#00FF41", fontname="Courier New", fontsize=12, penwidth=2];
+  edge [color="#FF00FF", penwidth=2.0];
+
+  root [label="Future Directions", shape=ellipse, penwidth=3];
+
+  f1 [label="Adaptive per-chunk\ncontext sizing", color="#00E5FF", fontcolor="#00E5FF"];
+  f2 [label="DOT-syntax\nauto-repair", color="#ffcc00", fontcolor="#ffcc00"];
+  f3 [label="think:false\nfor evidence extraction", color="#ff6600", fontcolor="#ff6600"];
+  f4 [label="Cross-process\nVRAM coordination", color="#FF00FF", fontcolor="#FF00FF"];
+
+  root -> f1;
+  root -> f2;
+  root -> f3;
+  root -> f4;
+
+  n1 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
+      label="measure real prompt tokens,\nallocate remaining budget\ndynamically vs. fixed 32768"];
+  n2 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
+      label="mirror the JSON backslash\nfix for observed invalid\nRoot [\"label='...'\"] syntax"];
+  n3 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
+      label="untested this session --\na GPU OOM blocked\nlive testing"];
+  n4 [shape=note, color="#666666", fontcolor="#999999", fontsize=10,
+      label="current RLock is in-process\nonly; two unrelated concurrent\ninvocations could still collide"];
+
+  f1 -> n1 [style=dashed, color="#666666", arrowhead=none];
+  f2 -> n2 [style=dashed, color="#666666", arrowhead=none];
+  f3 -> n3 [style=dashed, color="#666666", arrowhead=none];
+  f4 -> n4 [style=dashed, color="#666666", arrowhead=none];
+}

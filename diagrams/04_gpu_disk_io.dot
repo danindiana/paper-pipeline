@@ -1,0 +1,43 @@
+digraph GpuDiskIO {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=LR;
+  labelloc=t;
+  label="GPU / Disk I/O — One Chunk, End to End";
+  fontsize=22;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", color="#00FF41", fontcolor="#00FF41", fontname="Courier New", fontsize=12, penwidth=2];
+  edge [color="#FF00FF", penwidth=2.0, fontname="Courier New", fontcolor="#ffcc00", fontsize=10];
+
+  pdf [label="PDF\n(disk)"];
+  extract [label="PyMuPDF\ntext extraction"];
+  ocr [label="[optional]\nTesseract OCR\nDPI 300"];
+  chunk [label="Chunk assembly\n12pg / 2pg overlap"];
+  prompt [label="Prompt build\n(char-capped context)"];
+  http [label="Ollama HTTP POST\n/api/generate (streaming)"];
+
+  subgraph cluster_gpu {
+    label="Dual GPU VRAM";
+    fontcolor="#00E5FF";
+    color="#00b4ff";
+    style=dashed;
+    gpu0 [label="RTX 5080\n16GB"];
+    gpu1 [label="RTX 3080\n10GB"];
+    note [label="mutually exclusive\n~17-22GB models,\nevicted before load,\n~26.5GB combined", shape=note, color="#ffcc00", fontcolor="#ffcc00"];
+  }
+
+  tokens [label="Streamed tokens back\n(response + thinking split)"];
+  sqlite [label="SQLite WAL write\n(fenced by lease generation)"];
+  dot [label="dot subprocess\n(Graphviz)"];
+  svg [label="SVG output"];
+
+  pdf -> extract -> chunk;
+  extract -> ocr [style=dashed, color="#00b4ff"];
+  ocr -> chunk [style=dashed, color="#00b4ff"];
+  chunk -> prompt -> http;
+  http -> gpu0;
+  http -> gpu1;
+  http -> tokens;
+  tokens -> sqlite -> dot -> svg;
+}

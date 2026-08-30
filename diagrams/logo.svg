@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="400" fill="#0d0d0d"/>
+
+  <!-- document icon with folded corner -->
+  <g filter="url(#glow)">
+    <polygon points="90,80 260,80 260,180 320,180 320,340 90,340" fill="none" stroke="#00FF41" stroke-width="4"/>
+    <polygon points="260,80 320,180 260,180" fill="none" stroke="#00FF41" stroke-width="4"/>
+    <line x1="130" y1="150" x2="280" y2="150" stroke="#00FF41" stroke-width="3"/>
+    <line x1="130" y1="190" x2="280" y2="190" stroke="#00FF41" stroke-width="3"/>
+    <line x1="130" y1="230" x2="280" y2="230" stroke="#00FF41" stroke-width="3"/>
+    <line x1="130" y1="270" x2="250" y2="270" stroke="#00FF41" stroke-width="3"/>
+  </g>
+
+  <!-- circuit traces flowing from the document toward the wordmark -->
+  <g fill="none" stroke-width="3">
+    <path d="M 320 140 L 400 140 L 420 120 L 470 120" stroke="#FF00FF"/>
+    <circle cx="400" cy="140" r="5" fill="#FF00FF" stroke="none"/>
+    <circle cx="470" cy="120" r="5" fill="#FF00FF" stroke="none"/>
+
+    <path d="M 320 210 L 380 210 L 400 210 L 440 210" stroke="#00E5FF"/>
+    <circle cx="380" cy="210" r="5" fill="#00E5FF" stroke="none"/>
+
+    <path d="M 320 280 L 400 280 L 420 300 L 470 300" stroke="#FF00FF"/>
+    <circle cx="400" cy="280" r="5" fill="#FF00FF" stroke="none"/>
+    <circle cx="470" cy="300" r="5" fill="#FF00FF" stroke="none"/>
+  </g>
+
+  <!-- wordmark -->
+  <g filter="url(#glow)" font-family="'Courier New', Courier, monospace" font-weight="bold">
+    <text x="500" y="205" font-size="88" fill="#00FF41">PAPER</text>
+    <text x="500" y="290" font-size="88" fill="#00FF41">PIPELINE</text>
+  </g>
+
+  <!-- tagline -->
+  <text x="500" y="335" font-family="'Courier New', Courier, monospace" font-size="22" fill="#00E5FF">
+    evidence-grounded synthesis, entirely local
+  </text>
+</svg>

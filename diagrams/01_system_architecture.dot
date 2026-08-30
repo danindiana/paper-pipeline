@@ -1,0 +1,68 @@
+digraph SystemArchitecture {
+  bgcolor="#0d0d0d";
+  fontname="Courier New";
+  fontcolor="#00FF41";
+  rankdir=LR;
+  labelloc=t;
+  label="Paper Pipeline — System Architecture";
+  fontsize=22;
+
+  node [shape=box, style=filled, fillcolor="#0a0a0a", color="#00FF41", fontcolor="#00FF41", fontname="Courier New", fontsize=12, penwidth=2];
+  edge [color="#FF00FF", penwidth=2.0, fontname="Courier New", fontcolor="#ffcc00", fontsize=11];
+
+  pdfs [label="PDF files\n(papers_dir)"];
+  cli [label="__main__.py CLI\nargparse, health-check,\ntier-sort by page count"];
+  processor [label="PaperProcessor.process()\n(pipeline.py, per paper)"];
+
+  subgraph cluster_evidence {
+    label="Evidence Synthesis (reader.py)";
+    fontcolor="#00E5FF";
+    color="#00b4ff";
+    style=dashed;
+    extract [label="extract_pages()\nPyMuPDF + optional OCR"];
+    chunks [label="build_chunks()\n12pg window, 2pg overlap"];
+    synth [label="synthesize_evidence()\nmap -> reduce"];
+    registry [label="Immutable evidence-ID\nregistry (verbatim-verified)"];
+    extract -> chunks -> synth -> registry;
+  }
+
+  subgraph cluster_sections {
+    label="5 Independent Sections";
+    fontcolor="#ffcc00";
+    color="#ff6600";
+    style=dashed;
+    summary [label="Summary"];
+    logic [label="Symbolic Logic"];
+    cpp [label="C++ Examples"];
+    diagrams [label="Graphviz Diagrams\n(neon-on-black themed)"];
+    critical [label="Critical Analysis"];
+  }
+
+  client [label="OllamaClient / OllamaVRAM\nprocess-wide lock,\nevicts before load"];
+  ollama [label="Ollama HTTP API\nlocalhost:11434"];
+  gpu [label="GPU VRAM\n(dual NVIDIA)"];
+  store [label="store.py\nSQLite (WAL, lease/fenced)"];
+
+  pdfs -> cli -> processor;
+  processor -> extract;
+  registry -> summary;
+  registry -> logic;
+  registry -> cpp;
+  registry -> diagrams;
+  registry -> critical;
+
+  summary -> client;
+  logic -> client;
+  cpp -> client;
+  diagrams -> client;
+  critical -> client;
+
+  client -> ollama [label="stream /api/generate"];
+  ollama -> gpu [label="load/evict\nmutually exclusive models"];
+
+  summary -> store [label="fenced write", color="#00FF41"];
+  logic -> store [color="#00FF41"];
+  cpp -> store [color="#00FF41"];
+  diagrams -> store [color="#00FF41"];
+  critical -> store [color="#00FF41"];
+}
