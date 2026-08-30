@@ -39,13 +39,11 @@ import sqlite3
 import sys
 from pathlib import Path
 
-try:
-    from neo4j import GraphDatabase
-except ImportError:
-    sys.exit(
-        "ERROR: the 'neo4j' package is required for this optional feature.\n"
-        "  pip install neo4j"
-    )
+# Imported lazily inside main() rather than at module level: import_paper()
+# below takes a driver session as a plain argument and never touches the
+# `neo4j` package directly, so the rest of this module (and its logic) stays
+# importable/testable without the optional dependency installed -- only
+# actually running the CLI requires it.
 
 
 def load_papers(db_path: Path):
@@ -150,6 +148,14 @@ def import_paper(session, paper_row, diagram_rows) -> tuple[int, int]:
 
 
 def main() -> None:
+    try:
+        from neo4j import GraphDatabase
+    except ImportError:
+        sys.exit(
+            "ERROR: the 'neo4j' package is required for this optional feature.\n"
+            "  pip install neo4j"
+        )
+
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--db-path", type=Path, required=True,
                      help="Path to paper-pipeline's SQLite database")

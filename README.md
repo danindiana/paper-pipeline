@@ -10,7 +10,7 @@
   <a href="https://ubuntu.com"><img src="https://img.shields.io/badge/OS-Ubuntu_Linux-E95420.svg?style=flat-square&logo=ubuntu" alt="Ubuntu"></a>
   <a href="https://nvidia.com"><img src="https://img.shields.io/badge/GPU-RTX_5080_|_3080-76B900.svg?style=flat-square&logo=nvidia" alt="NVIDIA GPUs"></a>
   <a href="https://ollama.com"><img src="https://img.shields.io/badge/ollama-resident-orange.svg?style=flat-square" alt="Ollama Resident"></a>
-  <img src="https://img.shields.io/badge/tests-58_passing-brightgreen.svg?style=flat-square" alt="58 Tests Passing">
+  <img src="https://img.shields.io/badge/tests-62_passing-brightgreen.svg?style=flat-square" alt="62 Tests Passing">
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square" alt="License"></a>
 </p>
 
@@ -202,7 +202,7 @@ pip install pytest
 python -m pytest tests/ -v
 ```
 
-58 tests passing. Five real production bugs were found and fixed with a
+62 tests passing. Six real production bugs were found and fixed with a
 regression test apiece:
 
 * Empty-generation retry/recovery — `tests/test_empty_generation_retry.py`
@@ -219,6 +219,11 @@ regression test apiece:
   `tests/test_diagrams.py`. Confirmed against a real 308-paper overnight
   batch: fixes 5 of 55 diagrams that failed to render (the rest fail for
   more varied, less tractable reasons — see `diagrams/05_future_directions`).
+* Typo'd diagram delimiters (`===DIOD_END===`, `===DIARGAM_END===` — both
+  observed live) silently merging two diagrams into one and losing the
+  "swallowed" one entirely — `tests/test_diagrams.py::ParseDiagramsTests`.
+  Measured impact on the same batch: 21 of 210 papers ended up with fewer
+  than the expected 6 diagrams before this fix.
 
 ## Hardware This Was Developed & Tested On
 

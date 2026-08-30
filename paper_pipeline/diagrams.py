@@ -15,10 +15,15 @@ from typing import Optional
 
 # ── Parsing ──────────────────────────────────────────────────────────────────
 
-_DELIM_RE = re.compile(
-    r"===DIAGRAM_START:\s*(.+?)===\s*(.*?)===DIAGRAM_END===",
-    re.DOTALL | re.IGNORECASE,
-)
+_START_RE = re.compile(r"===DIAGRAM_START:\s*(.+?)===", re.IGNORECASE)
+
+# Deliberately lenient: matches any "===...END...===" shaped fragment, not
+# just a correctly-spelled "===DIAGRAM_END===". Observed live, independently,
+# twice: "===DIOD_END===" and "===DIARGAM_END===" (transposed letters). A
+# strict end-delimiter match would skip past either typo and keep consuming
+# non-greedily into the *next* diagram's own end marker, silently merging two
+# diagrams into one stored row and losing the "swallowed" one entirely.
+_TRAILING_END_RE = re.compile(r"===\s*\S*END\S*\s*===\s*\Z", re.IGNORECASE | re.DOTALL)
 
 _FENCE_RE = re.compile(
     r"```(?:dot|graphviz)?\s*\n?((?:digraph|graph)\b.*?)```",
@@ -29,14 +34,22 @@ _FENCE_RE = re.compile(
 def parse_diagrams(raw: str) -> list[tuple[str, str]]:
     """Extract (title, dot_source) pairs from LLM output.
 
-    Tries the ===DIAGRAM_START/END=== delimiters first, falls back to
-    fenced code blocks containing digraph/graph keywords.
+    Anchored on the ===DIAGRAM_START:...=== markers only -- each diagram's
+    content runs from right after its own start marker to the next start
+    marker (or end of text for the last one), never depending on finding a
+    well-formed end marker. A trailing end-delimiter-shaped fragment is
+    stripped for cosmetic cleanliness if present, but its absence or
+    corruption no longer breaks parsing structurally. Falls back to fenced
+    code blocks containing digraph/graph keywords if no start marker exists
+    at all.
     """
     results: list[tuple[str, str]] = []
+    starts = list(_START_RE.finditer(raw))
 
-    for m in _DELIM_RE.finditer(raw):
+    for i, m in enumerate(starts):
         title = m.group(1).strip()
-        dot = m.group(2).strip()
+        end = starts[i + 1].start() if i + 1 < len(starts) else len(raw)
+        dot = _TRAILING_END_RE.sub("", raw[m.end() : end]).strip()
         if dot and ("digraph" in dot.lower() or "graph" in dot.lower()):
             results.append((title, dot))
 
