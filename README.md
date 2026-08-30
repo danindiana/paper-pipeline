@@ -129,6 +129,12 @@ The default SQLite path (`/mnt/nvme_staging/paper_processor_data/papers-v2.db`)
 is this author's own machine — override it with `--db-path PATH` or the
 `PAPER_PROCESSOR_DB` environment variable for your own setup.
 
+**New to this?** [`cli_howto.md`](cli_howto.md) is the full cold-start
+runbook — recovery, observability, troubleshooting, and the "why" behind the
+guidance above. `./scripts/setup.sh` automates the install steps;
+`./scripts/monitor.sh PAPERS_DIR --watch` gives you a live view (loaded
+model, GPU, batch progress, a stuck heuristic) while a batch runs.
+
 ## CLI Flags
 
 ```
