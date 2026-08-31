@@ -197,20 +197,41 @@ redoing one section of one specific paper via `--paper filename.pdf`.
 
 ## 7. What failures look like, and what to do about them
 
-Three failure shapes actually observed running this at scale, in
+Four failure shapes actually observed running this at scale, in
 operator-facing terms:
 
 * **"Ollama returned an empty response after reload retry"** — the model
   generated nothing usable for one chunk. The pipeline already retried once
-  with a forced model reload before surfacing this. Rare after the
-  context-budget fix shipped in this repo's history; if you see it
-  frequently, it may mean your GPU doesn't have enough VRAM headroom for the
-  configured context size.
+  with a forced model reload before surfacing this. Usually rare after the
+  context-budget fix shipped in this repo's history, but it **can recur
+  persistently on the reasoning tier under sustained multi-hour load**: on a
+  35B-class model with limited combined VRAM, `journalctl -u ollama` may show
+  the underlying `llama-server` crashing with `cudaMalloc failed: out of
+  memory`, in which case the forced reload just reloads into the same tight
+  budget and crashes again. If you see this repeatedly and confirm the OOM
+  signature in Ollama's own logs, a plain rerun with the GPU otherwise idle
+  is more likely to succeed than one during a long, busy batch — but it isn't
+  guaranteed, since the crash is a function of sustained load, not a one-time
+  state.
 * **"chunk N evidence extraction failed: all proposed evidence failed source
   verification"** — the model's proposed evidence didn't survive the
-  verbatim-quote check for an entire chunk, on both attempts. This is
-  sampling variance, not a bug — a plain rerun (see [Recovery](#6-recovery))
-  frequently succeeds on the same paper with fresh sampling.
+  verbatim-quote check for an entire chunk, on both attempts. Most instances
+  of this are ordinary sampling variance — a plain rerun (see
+  [Recovery](#6-recovery)) frequently succeeds on the same paper with fresh
+  sampling. But if the **same chunk number** fails identically across
+  multiple reruns, it usually isn't variance at all — see the next item.
+* **The same chunk fails identically, verbatim, every single rerun** — this
+  points at page *content*, not model luck. Confirmed live on one real paper
+  by capturing the raw model output directly: a chunk consisting of a dense
+  raw data table (thousands of `id(id|id)`-style lines, not prose) caused the
+  model to abandon the required JSON evidence format entirely and write a
+  free-form analysis instead — no repair-prompt retry can fix that, since
+  it's not a small formatting slip. Pages that are mostly non-prose (raw
+  data/tables/listings, or heavily OCR-garbled scans with no clean source
+  text) are a genuine content-difficulty limitation of the current
+  map-prompt design, not a bug — treat repeated identical failures on the
+  same chunk as a signal to accept the paper as partially processed rather
+  than expecting further reruns to help.
 * **A CUDA/GPU error mid-run** (e.g. `CUDA error: the launch timed out and
   was terminated`) — the pipeline detects `"timed out"` in the error text,
   automatically restarts the Ollama service, confirms it's back up, and
