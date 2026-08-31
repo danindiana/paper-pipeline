@@ -231,7 +231,14 @@ operator-facing terms:
   text) are a genuine content-difficulty limitation of the current
   map-prompt design, not a bug — treat repeated identical failures on the
   same chunk as a signal to accept the paper as partially processed rather
-  than expecting further reruns to help.
+  than expecting further reruns to help. A page-content filter to catch
+  these automatically was investigated and deliberately **not** built: the
+  underlying causes turned out to be heterogeneous (a genuine data table in
+  one case, a garbled PDF math-equation-extraction artifact in another that
+  reads nothing like a data table), too varied for one heuristic to target
+  without risking false positives on legitimate dense-math pages elsewhere
+  in a corpus. Not worth it at the observed base rate (roughly 1 in 300
+  papers).
 * **A CUDA/GPU error mid-run** (e.g. `CUDA error: the launch timed out and
   was terminated`) — the pipeline detects `"timed out"` in the error text,
   automatically restarts the Ollama service, confirms it's back up, and
