@@ -96,6 +96,23 @@ def main() -> None:
             Output is stored in a shared SQLite database keyed by paper content hash.
             Default: {config.DEFAULT_DB_PATH}
             Override: --db-path PATH  or  {config.DB_PATH_ENV_VAR} env var
+
+            Pointing this at a new/different folder:
+              Directory scanning is RECURSIVE by default (all *.pdf under DIR,
+              any depth) — run with --list first to see real scope before a
+              full run, especially on a folder tree rather than a flat one.
+
+              Papers are keyed by content hash, not by folder path, so you
+              choose: reuse the same/default database to add the new folder's
+              papers into one shared corpus (identical files are skipped
+              automatically, no collision risk), or pass a different
+              --db-path to keep the new folder's results fully separate.
+
+            Checking on a run / seeing what's in the database:
+              paper-pipeline-tui DIR [--db-path PATH]      interactive dashboard
+              ./scripts/monitor.sh DIR [--db-path PATH]    scriptable/tmux status line
+              python3 scripts/instances.py                 what's running, from where, on this machine
+              ./scripts/graph_viz.sh import --db-path PATH re-sync the optional Neo4j/cosmos.gl evidence graph
         """),
     )
     ap.add_argument(
