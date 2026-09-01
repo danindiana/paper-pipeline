@@ -18,6 +18,17 @@
     padding: 8px 12px; font-size: 12px;
   }
   #legend span { display: inline-block; width: 10px; height: 10px; margin-right: 6px; }
+  #controls {
+    position: absolute; bottom: 10px; left: 10px; z-index: 10;
+    background: rgba(10,10,10,0.85); border: 1px solid #00FF41;
+    padding: 8px 12px; font-size: 12px; display: flex; gap: 8px;
+  }
+  #controls button {
+    font-family: inherit; font-size: 12px; cursor: pointer;
+    background: #0d0d0d; color: #00FF41; border: 1px solid #00FF41;
+    padding: 4px 10px;
+  }
+  #controls button:hover { background: #00FF41; color: #0d0d0d; }
   #tooltip {
     position: absolute; z-index: 20; display: none;
     background: rgba(10,10,10,0.95); border: 1px solid #00E5FF; color: #00E5FF;
@@ -45,6 +56,10 @@
     <div><span style="background:#00FF41"></span>Paper</div>
     <div><span style="background:#00E5FF"></span>Evidence</div>
     <div><span style="background:#FF00FF"></span>Diagram</div>
+  </div>
+  <div id="controls">
+    <button id="freeze-btn">Freeze</button>
+    <button id="export-btn">Export PNG</button>
   </div>
   <div id="tooltip"></div>
   <div id="modal"><div id="modal-content" style="position:relative">
@@ -159,6 +174,29 @@
       graph.render();
 
       statusEl.textContent = `${nodes.length.toLocaleString()} nodes / ${e.toLocaleString()} edges`;
+
+      const freezeBtn = document.getElementById("freeze-btn");
+      let frozen = false;
+      freezeBtn.addEventListener("click", () => {
+        frozen = !frozen;
+        if (frozen) {
+          graph.pause();
+          freezeBtn.textContent = "Resume";
+        } else {
+          graph.unpause();
+          freezeBtn.textContent = "Freeze";
+        }
+      });
+
+      document.getElementById("export-btn").addEventListener("click", () => {
+        const canvas = document.querySelector("#graph canvas");
+        if (!canvas) return;
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = `evidence-graph-${stamp}.png`;
+        a.click();
+      });
     }
 
     main().catch(err => {
