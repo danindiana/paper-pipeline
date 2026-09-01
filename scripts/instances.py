@@ -20,6 +20,7 @@ Ubuntu/Debian assumption throughout cli_howto.md.
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import socket
@@ -300,6 +301,17 @@ def related_services_report() -> list[str]:
 # ══════════════════════════════════════════════════════════════════════════
 
 def main() -> None:
+    argparse.ArgumentParser(
+        prog="instances.py",
+        description=(
+            "What paper-pipeline is doing on this machine, right now: "
+            "every running instance, its uptime, root/source/database "
+            "paths, live database row counts, resource usage, and the "
+            "exact command to shut it down gracefully. No arguments -- "
+            "takes no flags, discovers everything from /proc."
+        ),
+    ).parse_args()
+
     pids = discover_instances()
 
     print("=" * 72)
