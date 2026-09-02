@@ -1,5 +1,11 @@
 # Evidence Graph Visualization (optional)
 
+> **Frozen.** Active development of this viewer has moved to
+> [`cosmosgl-evidence-graph`](https://github.com/danindiana/cosmosgl-evidence-graph),
+> a standalone repo with a more complete README, HOWTO, and architecture
+> diagrams. This copy still works as documented below, but new CosmosGL
+> functionality lands there, not here.
+
 Renders the evidence graph behind your processed papers — every verified
 evidence item, how items relate to each other, and which diagrams came from
 which paper — as an interactive WebGL force graph in the browser, via
